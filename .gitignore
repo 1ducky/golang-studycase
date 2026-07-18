@@ -1,0 +1,25 @@
+# binary
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# build
+/bin/
+/dist/
+/storage/
+# env
+.env
+
+# logs
+*.log
+
+# vscode
+.vscode/
+
+# idea
+.idea/
+
+# temporary
+tmp/
