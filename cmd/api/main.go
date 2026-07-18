@@ -36,7 +36,9 @@ func main() {
 	authService := auth.NewAuthService(authRepo, jwtService)
 	authHandler := auth.NewHandler(authService)
 
-	imageHandler := image.NewHandler()
+	imageRepo := image.NewLocalStorage(conf.Image)
+	imageService := image.NewService(imageRepo)
+	imageHandler := image.NewHandler(imageService)
 
 	mux := http.NewServeMux()
 	todos.Register(todoHandler, mux)
@@ -49,7 +51,7 @@ func main() {
 		Addr:              ":8000",
 		Handler:           middlewares,
 		ReadTimeout:       10 * time.Second,
-		ReadHeaderTimeout: 10 * time.Second,
+		ReadHeaderTimeout: 2 * time.Second,
 		WriteTimeout:      10 * time.Second,
 		IdleTimeout:       10 * time.Second,
 	}
