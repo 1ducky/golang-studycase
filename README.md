@@ -22,6 +22,15 @@ DB_NAME=rest_api
 SECRET_AUTH=your_secret_key
 ```
 
+## Database Setup
+
+Before running the application, make sure you import the initial database schema to your MySQL database. You can find the schema file in the `migrate/mysql/` directory.
+
+To import it, run the following command in your terminal (make sure to replace the username, password, and database name with your own):
+```bash
+mysql -u root -p rest_api < migrate/mysql/000_initial.sql
+```
+
 ## Running the Application
 
 Ensure you have your `.env` configured properly. The server runs on port `8000` by default.
@@ -29,6 +38,18 @@ Ensure you have your `.env` configured properly. The server runs on port `8000` 
 ```bash
 go run cmd/api/main.go
 ```
+
+## Bootstrap Process
+
+The application follows a structured initialization flow in `main.go`:
+1. **Environment & Configuration**: Loads `.env` file (`config.LoadEnv()`) and initializes the config object.
+2. **Database Initialization**: Connects to the database and sets up a DB transaction manager.
+3. **Repository Layer**: Instantiates repositories (`TodoLogRepository`, `TodoMemory`, `AuthRepository`).
+4. **Service Layer**: Instantiates services with their required dependencies injected (`TodoService`, `JWTService`, `AuthService`).
+5. **Handler Layer**: Instantiates HTTP handlers (`TodoHandler`, `AuthHandler`, `ImageHandler`).
+6. **Router & Endpoints**: Creates an `http.ServeMux` and registers all routes.
+7. **Middlewares**: Chains global middlewares (e.g., Logging and Authentication) wrapping the multiplexer.
+8. **Server Start**: Configures the HTTP server (e.g., timeouts, port `:8000`) and starts listening for requests (`server.ListenAndServe()`).
 
 ## Endpoints
 
