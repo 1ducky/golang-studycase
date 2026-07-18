@@ -1,6 +1,8 @@
 package image
 
-import "mime/multipart"
+import (
+	"io"
+)
 
 const FileFieldName = "image"
 
@@ -25,5 +27,7 @@ var AllowedImageType = map[string]ImageType{
 }
 
 type ImageRequest struct {
-	MultipartReader *multipart.Reader
+	ImageReader io.Reader
+	Ext         ImageType
+	OwnerID     string
 }

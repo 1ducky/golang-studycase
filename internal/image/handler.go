@@ -36,8 +36,6 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	owner := user.Username + strconv.Itoa(user.ID)
-
 	for {
 		part, err := mr.NextPart()
 		if err == io.EOF {
@@ -53,8 +51,14 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 			part.Close()
 			continue
 		}
+		mapper, err := PartToImageRequest(part, strconv.Itoa(user.ID))
+		if err != nil {
+			er := ErrorHandler(err)
+			httpHelper.Error(w, er.Status, er.Code, er.Message)
+			return
+		}
 
-		_, err = h.Service.Upload(r.Context(), owner, part)
+		_, err = h.Service.Upload(r.Context(), mapper)
 		if err != nil {
 			er := ErrorHandler(err)
 			httpHelper.Error(w, er.Status, er.Code, er.Message)

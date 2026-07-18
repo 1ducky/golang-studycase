@@ -1,11 +1,8 @@
 package image
 
 import (
-	"bytes"
 	"context"
 	"crypto/rand"
-	"io"
-	"net/http"
 )
 
 type Service struct {
@@ -18,28 +15,12 @@ func NewService(r Repository) *Service {
 	}
 }
 
-func (s *Service) Upload(ctx context.Context, owner string, r io.Reader) (string, error) {
-	buf := make([]byte, 512)
-	n, err := io.ReadFull(r, buf)
-	if err != nil && err != io.ErrUnexpectedEOF {
-		return "", ErrInternalError
-	}
+func (s *Service) Upload(ctx context.Context, req *ImageRequest) (string, error) {
 
-	contentType := http.DetectContentType(buf[:n])
-	ext, ok := validationImagetype(contentType)
-	if !ok {
-		return "", ErrInvalidContentType
-	}
+	fileName := req.OwnerID + "_" + rand.Text() + string(req.Ext)
 
-	fileName := owner + "_" + rand.Text() + string(ext)
-
-	// gabungkan bytes yang sudah kebaca + sisa stream, jadi tidak perlu
-	// buffer seluruh file ke memori
-	full := io.MultiReader(bytes.NewReader(buf[:n]), r)
-
-	if err := s.Repo.Save(ctx, fileName, full); err != nil {
+	if err := s.Repo.Save(ctx, fileName, req.ImageReader); err != nil {
 		return "", ErrFailedWrite
 	}
-
 	return fileName, nil
 }
