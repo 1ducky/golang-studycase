@@ -10,6 +10,8 @@ var ErrTodoTimeOut = errors.New("TimeOut")
 var ErrTodoCanceled = errors.New("Canceled")
 var ErrTodoUnavaliable = errors.New("Unavaliable")
 var ErrUnauthorized = errors.New("Unauthorized")
+var ErrPartialBulk = errors.New("PartialBulkFailed")
+var ErrBulkError = errors.New("PartialBulkFailed")
 
 func errorHandler(err error) Error {
 	switch {
@@ -26,6 +28,10 @@ func errorHandler(err error) Error {
 		return Error{Code: "Canceled", Status: 408, Message: "Canceled"}
 	case errors.Is(err, ErrTodoUnavaliable):
 		return Error{Code: "Unavaliable", Status: 503, Message: "Unavaliable"}
+	case errors.Is(err, ErrPartialBulk):
+		return Error{Code: "PartialBulk", Status: 400, Message: "Some of bulk failed"}
+	case errors.Is(err, ErrBulkError):
+		return Error{Code: "BulkError", Status: 400, Message: "All of bulk failed"}
 	}
 
 	return Error{Code: "InternalError", Status: 500, Message: "Internal Error"}

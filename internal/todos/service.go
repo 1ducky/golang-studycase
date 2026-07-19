@@ -3,8 +3,12 @@ package todos
 import (
 	"context"
 	"database/sql"
+	"io"
 	"restApi/internal/auth"
+	"restApi/internal/csv"
 	"restApi/internal/database"
+	"restApi/internal/pipeline"
+	"restApi/internal/pipeline/worker"
 	"restApi/internal/query"
 	todolog "restApi/internal/todos/todo-log"
 )
@@ -151,4 +155,44 @@ func (s *Service) Delete(ctx context.Context, payload DeleteRequest) error {
 	})
 
 	return err
+}
+
+func (s *Service) UploadWithCsv(ctx context.Context, payload io.Reader) (BulkResult, error) {
+	rowStream := csv.ReadCsvFile(ctx, payload)
+	create := pipeline.Stream(ctx, rowStream, 2, func(ctx context.Context, arg []string) (CreateRequest, error) {
+		return MapperArgsToTodos(arg)
+	})
+	batch := pipeline.Batching(ctx, 10, create)
+	res, err := s.BulkInsert(ctx, batch, 2)
+	return res, err
+
+}
+
+func (s *Service) BulkInsert(ctx context.Context, data <-chan []CreateRequest, workerPool int) (BulkResult, error) {
+	var (
+		errCount     int64
+		successCount int64
+		err          error
+	)
+	pool := worker.NewWorkerPool[[]CreateRequest, []CreateRequest](workerPool)
+	report := pool.Run(ctx, data, func(ctx context.Context, cr []CreateRequest) ([]CreateRequest, error) {
+		_, err := s.repository.BulkCreate(ctx, cr)
+		if err != nil {
+			return cr, err
+		}
+		return cr, nil
+	})
+	for r := range report {
+		if r.Error != nil {
+			errCount += int64(len(r.Result))
+			err = ErrPartialBulk
+		} else {
+			successCount += int64(len(r.Result))
+		}
+	}
+	if successCount == 0 {
+		err = ErrBulkError
+	}
+
+	return BulkResult{SuccessCount: successCount, ErrorCount: errCount, TotalData: successCount + errCount}, err
 }

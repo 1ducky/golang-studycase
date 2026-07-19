@@ -4,7 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"restApi/internal/database"
+	"strings"
 )
 
 type Repository interface {
@@ -13,6 +15,7 @@ type Repository interface {
 	Create(ctx context.Context, payload CreateRequest) (int, error)
 	Update(ctx context.Context, payload UpdateRequest) (int, error)
 	Delete(ctx context.Context, payload DeleteRequest) error
+	BulkCreate(ctx context.Context, payloads []CreateRequest) (int64, error)
 }
 
 type TodoMemory struct {
@@ -123,4 +126,34 @@ func lastId(todos []Todo) int {
 		return 0
 	}
 	return todos[len(todos)-1].ID
+}
+
+func (r *TodoMemory) BulkCreate(ctx context.Context, payloads []CreateRequest) (int64, error) {
+	if len(payloads) == 0 {
+		return 0, nil
+	}
+
+	valueStrings := make([]string, 0, len(payloads))
+	valueArgs := make([]interface{}, 0, len(payloads)*2)
+
+	for _, p := range payloads {
+		valueStrings = append(valueStrings, "(?, ?)")
+		valueArgs = append(valueArgs, p.Task, false)
+	}
+
+	query := fmt.Sprintf(
+		"INSERT INTO todos(task, is_done) VALUES %s",
+		strings.Join(valueStrings, ","),
+	)
+
+	result, err := r.db.ExecContext(ctx, query, valueArgs...)
+	if err != nil {
+		return 0, err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+	return affected, nil
 }

@@ -29,3 +29,16 @@ type TodosMeta struct {
 	Limit      int  `json:"limit,omitempty"`
 	HasNext    bool `json:"hasNext"`
 }
+
+const FileFieldName = "csv"
+
+const (
+	TaskColumn = 0
+	IsDone     = 1
+)
+
+type BulkResult struct {
+	TotalData    int64
+	SuccessCount int64
+	ErrorCount   int64
+}

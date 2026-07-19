@@ -33,6 +33,11 @@ func Error(w http.ResponseWriter, status int, code string, message string) {
 	json.NewEncoder(w).Encode(ErrorResponse{Success: false, Code: code, Message: message})
 
 }
+func ErrorWithMeta[T any](w http.ResponseWriter, status int, code string, message string, meta T) {
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(ErrorResponseWithMeta[T]{Success: false, Code: code, Message: message, Meta: meta})
+
+}
 
 func BadRequest(w http.ResponseWriter) {
 	w.WriteHeader(400)

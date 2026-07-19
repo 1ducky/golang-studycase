@@ -119,3 +119,30 @@ func (h *TodoHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	httpHelper.JSON(w, 200, true, "Deleted")
 }
+
+func (h *TodoHandler) Upload(w http.ResponseWriter, r *http.Request) {
+	_, ok := auth.GetAuht(r.Context())
+	if !ok {
+		httpHelper.Unauthorized(w)
+		return
+	}
+	if err := r.ParseMultipartForm(5 << 20); err != nil {
+		http.Error(w, "invalid multipart form", http.StatusBadRequest)
+		return
+	}
+
+	file, _, err := r.FormFile(FileFieldName)
+	if err != nil {
+		httpHelper.BadRequest(w)
+		return
+	}
+	res, err := h.service.UploadWithCsv(r.Context(), file)
+	if err != nil {
+		err := errorHandler(err)
+		httpHelper.ErrorWithMeta(w, err.Status, err.Code, err.Message, res)
+		return
+	}
+
+	httpHelper.JSON(w, 200, res, "Uploaded")
+
+}
