@@ -38,7 +38,7 @@ const (
 )
 
 type BulkResult struct {
-	TotalData    int64
-	SuccessCount int64
-	ErrorCount   int64
+	TotalData    int64 `json:"totalData"`
+	SuccessCount int64 `json:"successCount"`
+	ErrorCount   int64 `json:"errorCount"`
 }
