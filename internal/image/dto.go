@@ -26,7 +26,7 @@ var AllowedImageType = map[string]ImageType{
 	"image/webp": WEBP,
 }
 
-type ImageRequest struct {
+type UploadImage struct {
 	ImageReader io.Reader
 	Ext         ImageType
 	OwnerID     string

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func PartToImageRequest(r io.Reader, ownerID string) (*ImageRequest, error) {
+func MapperPartToUploadImage(r io.Reader, ownerID string) (*UploadImage, error) {
 	buf := make([]byte, 512)
 	n, err := io.ReadFull(r, buf)
 	if err != nil && err != io.ErrUnexpectedEOF {
@@ -21,7 +21,7 @@ func PartToImageRequest(r io.Reader, ownerID string) (*ImageRequest, error) {
 
 	imageReader := io.MultiReader(bytes.NewReader(buf[:n]), r)
 
-	return &ImageRequest{
+	return &UploadImage{
 		ImageReader: imageReader,
 		Ext:         ext,
 		OwnerID:     ownerID,

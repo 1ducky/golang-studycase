@@ -15,7 +15,7 @@ func NewService(r Repository) *Service {
 	}
 }
 
-func (s *Service) Upload(ctx context.Context, req *ImageRequest) (string, error) {
+func (s *Service) Upload(ctx context.Context, req *UploadImage) (string, error) {
 
 	fileName := req.OwnerID + "_" + rand.Text() + string(req.Ext)
 

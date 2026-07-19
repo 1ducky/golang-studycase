@@ -51,7 +51,8 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 			part.Close()
 			continue
 		}
-		mapper, err := PartToImageRequest(part, strconv.Itoa(user.ID))
+
+		mapper, err := MapperPartToUploadImage(part, strconv.Itoa(user.ID))
 		if err != nil {
 			er := ErrorHandler(err)
 			httpHelper.Error(w, er.Status, er.Code, er.Message)
