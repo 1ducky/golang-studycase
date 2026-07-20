@@ -4,18 +4,6 @@ This is a REST API built with Go, featuring dependency injection, custom middlew
 
 ## Features
 
-- **Authentication**: JWT-based authentication.
-- **Database**: Configured via environment variables.
-- **Middleware**: Logging and Authentication middlewares.
-
-## Configuration
-
-# Golang REST API Study Case
-
-Backend REST API built using Go.
-
-## Features
-
 - JWT Authentication
 - CRUD Todo
 - Image Upload
