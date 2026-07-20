@@ -101,17 +101,63 @@ Based on the available handlers, the API provides the following services and the
 
 ### Auth Service
 - **Login** (`POST /login`): Authenticates a user and returns a JWT token. (Requires JSON payload with credentials)
+Example: 
+```json
+{
+    "username": "admin",
+    "password": "password"
+}
+```
+![Sign Up](assets/preview/Sign_up.png)
+
+- **Register** (`POST /register`): Registers a new user. (Requires JSON payload with credentials)
+Example: 
+```json
+{
+    "username": "admin",
+    "password": "password"
+}
+```
+![Sign In](assets/preview/Sign_in.png)
 
 ### Todos Service
 - **GetAll** (`GET /todos`): Retrieves all todos. Can be filtered by `id` query parameter.
+![Get All](assets/preview/TodoGet.png)
+
 - **GetById** (`GET /todos?id={id}`): Retrieves a specific todo by `id` query parameter.
+![Get By ID](assets/preview/TodoGetID.png)
+
 - **Create** (`POST /todos`): Creates a new todo. (Requires Auth & JSON payload)
+Example: 
+```json
+{
+   "task" : "task Title"
+}
+```
+![Create](assets/preview/TodoCreate.png)
+
 - **Update** (`PATCH /todos`): Updates an existing todo. (Requires Auth & JSON payload)
+Example: 
+```json
+{
+   "id": 1,
+   "task" : "task Title",
+   "isDone": false
+}
+```
+![Update](assets/preview/TodoPatch.png)
+
 - **Delete** (`DELETE /todos`): Deletes a todo. (Requires Auth & JSON payload)
+![Delete](assets/preview/TodoDelete.png)
+
 - **Upload CSV** (`POST /todos/bulk`): Bulk creates todos from an uploaded CSV file. (Requires Auth & Multipart form data)
+![Upload](assets/preview/TodoBulkInsert.png)
 
 ### Image Service
 - **Upload** (`POST /upload`): Uploads an image file (Multipart form data). Requires Auth.
+![Upload Image](assets/preview/StreamImageUpload.png)
+![Upload Image](assets/preview/StreamImageUploadResult.png)
+
 
 
 ## Design Decisions

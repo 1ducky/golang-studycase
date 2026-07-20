@@ -11,6 +11,7 @@ import (
 	"restApi/internal/image"
 	"restApi/internal/todos"
 	todolog "restApi/internal/todos/todo-log"
+	"restApi/internal/user"
 	"time"
 )
 
@@ -30,6 +31,10 @@ func main() {
 	todoService := todos.NewService(todoRepo, todologRepo, dbtx)
 	todoHandler := todos.NewTodoHandler(todoService)
 
+	userRepo := user.NewUserMemory(db)
+	userService := user.NewService(userRepo)
+	userHandler := user.NewHandler(userService)
+
 	jwtService := jwt.NewJWT(conf.Auth)
 
 	authRepo := auth.NewRepository(db)
@@ -44,6 +49,7 @@ func main() {
 	todos.Register(todoHandler, mux)
 	auth.Register(authHandler, mux)
 	image.Register(imageHandler, mux)
+	user.Register(userHandler, mux)
 
 	middlewares := middleware.Chain(mux, middleware.Logging, middleware.NewAuthMiddleware(authService))
 
