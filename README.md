@@ -1,6 +1,6 @@
 # Go REST API
 
-This is a REST API built with Go, featuring dependency injection, custom middleware (logging and JWT authentication), and a modular project structure.
+REST API written in Go that demonstrates Clean Architecture, dependency injection, streaming file processing, worker pools, and pipeline concurrency for efficient bulk data processing.
 
 ## Features
 
@@ -112,3 +112,26 @@ Based on the available handlers, the API provides the following services and the
 
 ### Image Service
 - **Upload** (`POST /upload`): Uploads an image file (Multipart form data). Requires Auth.
+
+
+## Design Decisions
+
+1. **Dependency Injection**: All dependencies are injected into their respective layers.
+2. **Clean Architecture**: Separated layers (Handler, Service, Repository, Config) for better maintainability.
+3. **Streaming**: Uses streaming to process large files efficiently.
+4. **Worker Pool**: Uses a worker pool to process tasks in parallel.
+5. **Pipeline**: Uses a pipeline to process data in parallel.
+
+Why add a mapper layer? The handler layer must not interact directly with the service layer, as the service layer is responsible solely for application logic; the mapper layer therefore handles translating requests from the handler to the service.
+
+Why use stream jobs? HTTP requests can be time-consuming, to avoid timeouts, the application processes data immediately without waiting for the request to complete. Goroutines are used to handle this asynchronous processing.
+
+Why not use a standard layered architecture? While layered architecture is suitable for simple applications, organizing code by layer, it becomes difficult to manage as a project grows and its domain complexity increases.
+
+Why does the repository return an interface? Returning an interface facilitates mocking during testing and minimizes code changes when switching databases, furthermore, the service layer remains decoupled from the repository's internal implementation.
+
+Why define DTO contracts within the handler and service layers? Defining DTO contracts simplifies incoming data validation and modification, and makes it easier to update service contracts.
+
+How are requests tracked? Before reaching the handler, requests pass through middleware that generates a unique request ID, this ID is logged to facilitate analysis should issues arise.
+
+Why create a simple worker abstraction for stream jobs? The project involves numerous stream processes, handling channels, cancellation, and reporting directly within the main logic would clutter the codebase. A simple worker abstraction encapsulates these concerns, keeping the code clean and readable.
